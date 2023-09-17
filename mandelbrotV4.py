@@ -1,60 +1,31 @@
 # Créé par Ocean6, le 07/04/2023 en Python 3.11
 
-import pygame
-import threading
+try:
+    import threading
+except ImportError:
+    raise ImportError('threading module not found')
+
+import tkinter_displayer as display
+import task_manager
 
 # _______________Additional_Functions_________________ #
 
 
-def draw_tile(height, width, depth, center, zoom):
+def compute_image(max_iterations, corner_1, corner_2, drawing_size):
+
+    number_of_row = drawing_size[0]
+
+    for row in range(number_of_row):
+        pass
+
+
+def compute_pixel(width, height, x_column, y_row, max_iterations, center):
     """ Compute and draw a piece of the Mandelbrot fractal
 
     Parameters:
         height (int): height in pixels of the image to compute
         width (int): width in pixel of the image to compute
-        depth (int): represent the limit to decide if a point is divergent or not
-        center (tuple): coordinates of the center of the window on the fractal
-        zoom (int): zoom power
-
-    Returns:
-
-    """
-    global unit
-    unit = 3/zoom
-
-    memory = [[(0,0,0)]*width]*3
-
-    for y_row in range (height):
-        for x_column in range (width):
-
-            iteration = compute_pixel(width, height, x_column, y_row, depth, center)
-
-            color = iteration_to_color(iteration, depth)
-            memory[2][x_column] = color
-
-        if y_row == 0:
-            memory = memory_shift(memory, width)
-
-        else:
-            for x in range(width):
-                # color = color_smoothing(memory, x)
-                print_pixel(memory[1][x], (x, y_row-1))
-
-            memory = memory_shift(memory, width)
-
-        if y_row == height-1:
-            for x in range(width):
-                # color = color_smoothing(memory, x)
-                print_pixel(memory[1][x], (x, y_row))
-
-
-def compute_pixel(width, height, x_column, y_row, depth, center):
-    """ Compute and draw a piece of the Mandelbrot fractal
-
-    Parameters:
-        height (int): height in pixels of the image to compute
-        width (int): width in pixel of the image to compute
-        depth (int): represent the limit to decide if a point is divergent or not
+        max_iterations (int): represent the limit to decide if a point is divergent or not
         center (tuple): coordinates of the center of the window on the fractal
         zoom (int): zoom power
 
@@ -70,7 +41,7 @@ def compute_pixel(width, height, x_column, y_row, depth, center):
     # starting position
     progression_number = complex(0, 0)
 
-    for iteration in range(depth):
+    for iteration in range(max_iterations):
 
         # next progression number
         progression_number = progression_number * progression_number + complex_number
@@ -82,43 +53,15 @@ def compute_pixel(width, height, x_column, y_row, depth, center):
     return iteration
 
 
-def iteration_to_color(iteration, depth):
+def iteration_to_color(iteration, max_iterations):
     # not divergent
-    if iteration == depth-1:
+    if iteration == max_iterations-1:
         return (0,0,0)
 
     # playing on the hue value
     h,l,s = iteration%360, 1.0, 0.5
     r,g,b = hsl_to_rgb(h, l, s)
     return (r,g,b)
-
-
-def memory_shift(memory, width):
-    memory[0] = memory[1]
-    memory[1] = memory[2]
-    memory[2] = [(0,0,0)]*width
-    return memory
-
-
-def color_smoothing(memory, x):
-    red, green, blue = 0, 0, 0
-    for row in range(3):
-        for column in range(3):
-            if row == 1 and column == 1:
-                red += memory[column][x+(row-1)][0]
-                green += memory[column][x+(row-1)][1]
-                blue += memory[column][x+(row-1)][2]
-            else:
-                try:
-                    red += memory[column][x+(row-1)][0]/8
-                    green += memory[column][x+(row-1)][1]/8
-                    blue += memory[column][x+(row-1)][2]/8
-                except IndexError:
-                    continue
-    red /= 2
-    green /= 2
-    blue /= 2
-    return (int(red+0.5), int(green+0.5), int(blue+0.5))
 
 
 def hsl_to_rgb(H, S, L):
@@ -167,46 +110,27 @@ def print_pixel(color, position):
 
     """
     global screen
+    position_on_screen = (screen.get_width()/2-screen.get_height()/2+position[0], position[1])
 
-    try:
-        position_on_screen = (screen.get_width()/2-screen.get_height()/2+position[0], position[1])
-
-        pygame.draw.rect(screen, color, (position_on_screen[0], position_on_screen[1], 1, 1))
-        if position[0] == screen.get_height()-1:
-            pygame.display.update((position_on_screen[0]-screen.get_height()-1, position_on_screen[1], screen.get_height(), 1))
-    except pygame.error:
-        import sys
-        sys.exit()
-
-
-def init_pygame_window(height, width):
-    """ Init pygame and create a window
-
-    Parameters:
-        height (int): height of the window in pixels
-        width (int): width of the window in pixels
-
-    Returns:
-
-    """
-    pygame.init()
-    global screen
-    screen = pygame.display.set_mode((width,height))
-    global clock
-    clock = pygame.time.Clock()
+    pygame.draw.rect(screen, color, (position_on_screen[0], position_on_screen[1], 1, 1))
+    if position[0] == screen.get_height()-1:
+        pygame.display.update((position_on_screen[0]-screen.get_height()-1, position_on_screen[1], screen.get_height(), 1))
 
 # _____________Main_Programm_________________ #
 
-screen_height = 700
-screen_width = 1200
-depth = 70
-zoom = 10
-current_zoom = 1
-current_center = (0, -0.75)
-print(current_zoom, current_center, depth)
-init_pygame_window(screen_height, screen_width)
+max_iterations = 70
+zoom_power = 2
+# center = (-0.75, 0)
+# unit = 2
+corner_1 = (-1.75, 1)
+corner_2 = (0.25, -1)
 
-thread1 = threading.Thread(target=draw_tile, args=(screen_height, screen_height, depth, current_center, current_zoom))
+if __name__ == "__main__":
+    screen = display.Displayer()
+    drawing_size = screen.get_screen_size()
+
+
+thread1 = threading.Thread(target=draw_tile, args=(screen_height, screen_height, max_iterations, current_center, current_zoom))
 thread1.start()
 
 running = True
@@ -227,11 +151,11 @@ while running:
                         y = y/screen_height*unit-(0.5*unit) + current_center[1]
                         current_zoom *= zoom
                         current_center = (x, y)
-                        # depth += int(1/(zoom/6) * depth)
-                        depth += 100
-                        print(current_zoom, current_center, depth)
+                        # max_iterations += int(1/(zoom/6) * max_iterations)
+                        max_iterations += 100
+                        print(current_zoom, current_center, max_iterations)
 
-                        thread1 = threading.Thread(target=draw_tile, args=(screen_height, screen_height, depth, current_center, current_zoom))
+                        thread1 = threading.Thread(target=draw_tile, args=(screen_height, screen_height, max_iterations, current_center, current_zoom))
                         thread1.start()
     clock.tick(60)
 

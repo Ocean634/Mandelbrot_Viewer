@@ -11,15 +11,21 @@
 try:
     import tkinter
 except ImportError:
-    raise ImportError ["tkinter module not installed"]
+    raise ImportError("tkinter module not found")
 
 
 class Displayer:
 
+    Master = None
+    Frm = None
+    Canvas = None
+    height = 0
+    width = 0
+    ratio = 0
+
     def __init__(self):
         self.Master = self.create_window()
-        self.Canvas = self.create_canvas(self.Master)
-        self.Master.mainloop()
+        self.Canvas = self.create_canvas()
 
 
     def create_window(self):
@@ -34,7 +40,7 @@ class Displayer:
         return self.Master
 
 
-    def create_canvas(self, Master):
+    def create_canvas(self):
         """ Create a drawing space in the window
 
         Returns:
@@ -42,11 +48,19 @@ class Displayer:
         """
         self.Frm = tkinter.Frame(self.Master)
         self.Frm.pack()
+        self.height = self.Master.winfo_height()-4
+        self.width = self.Master.winfo_width()-4
+        self.ratio = self.width / self.height
         self.Canvas = tkinter.Canvas(self.Frm,
                                      bg="black",
-                                     height=Master.winfo_height()-4,
-                                     width=Master.winfo_width()-4
+                                     height = self.height,
+                                     width = self.width
                                     )
         self.Canvas.pack()
         self.Master.update()
         return self.Canvas
+
+
+    def get_screen_size(self):
+        """ Return the size of the drawing surface """
+        return (self.height, self.width)
