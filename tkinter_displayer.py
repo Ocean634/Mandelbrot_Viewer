@@ -19,8 +19,8 @@ class Displayer:
     Master = None
     Frm = None
     Canvas = None
-    height = 0
-    width = 0
+    canvas_height = 0
+    canvas_width = 0
     ratio = 0
 
     def __init__(self):
@@ -34,10 +34,10 @@ class Displayer:
         Returns:
             Tk_instance: main window of the application
         """
-        self.Master = tkinter.Tk()
-        self.Master.state("zoomed")
-        self.Master.update()
-        return self.Master
+        Master = tkinter.Tk()
+        Master.state("zoomed")
+        Master.update()
+        return Master
 
 
     def create_canvas(self):
@@ -48,8 +48,8 @@ class Displayer:
         """
         self.Frm = tkinter.Frame(self.Master)
         self.Frm.pack()
-        self.height = self.Master.winfo_height()-4
-        self.width = self.Master.winfo_width()-4
+        self.canvas_height = self.Master.winfo_height()-4
+        self.canvas_width = self.Master.winfo_width()-4
         self.ratio = self.width / self.height
         self.Canvas = tkinter.Canvas(self.Frm,
                                      bg="black",
@@ -61,6 +61,6 @@ class Displayer:
         return self.Canvas
 
 
-    def get_screen_size(self):
+    def get_canvas_size(self):
         """ Return the size of the drawing surface """
-        return (self.height, self.width)
+        return (self.canvas_height, self.canvas_width)

@@ -1,22 +1,20 @@
 # Créé par Ocean6, le 07/04/2023 en Python 3.11
 
-try:
-    import threading
-except ImportError:
-    raise ImportError('threading module not found')
-
 import tkinter_displayer as display
 import task_manager
 
 # _______________Additional_Functions_________________ #
 
 
-def compute_image(max_iterations, corner_1, corner_2, drawing_size):
+def compute_image(max_iterations, corner_1, corner_2, canvas_size, number_of_workers, manager):
 
-    number_of_row = drawing_size[0]
+    number_of_row = canvas_size[0]
 
+    pool = manager.create_pool(number_of_workers)
     for row in range(number_of_row):
-        pass
+        manager.task_list.append((compute_line, (max_iterations, corner_1, corner_2, row)))
+        manager.start_processing()
+
 
 
 def compute_pixel(width, height, x_column, y_row, max_iterations, center):
@@ -126,37 +124,39 @@ corner_1 = (-1.75, 1)
 corner_2 = (0.25, -1)
 
 if __name__ == "__main__":
-    screen = display.Displayer()
-    drawing_size = screen.get_screen_size()
+    # screen = display.Displayer()
+    # canvas_size = screen.get_canvas_size()
+    # manager = task_manager.Task_Manager()
+    pass
 
 
-thread1 = threading.Thread(target=draw_tile, args=(screen_height, screen_height, max_iterations, current_center, current_zoom))
-thread1.start()
-
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-        if not thread1.is_alive():
-            if pygame.mouse.get_focused():
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    x, y = pygame.mouse.get_pos()
-                    x = x - (screen_width/2-screen_height/2)
-
-                    if 0 <= x < screen_height:
-                        global unit
-                        x = x/screen_height*unit-(0.5*unit) + current_center[0]
-                        y = y/screen_height*unit-(0.5*unit) + current_center[1]
-                        current_zoom *= zoom
-                        current_center = (x, y)
-                        # max_iterations += int(1/(zoom/6) * max_iterations)
-                        max_iterations += 100
-                        print(current_zoom, current_center, max_iterations)
-
-                        thread1 = threading.Thread(target=draw_tile, args=(screen_height, screen_height, max_iterations, current_center, current_zoom))
-                        thread1.start()
-    clock.tick(60)
-
-pygame.quit()
+##thread1 = threading.Thread(target=draw_tile, args=(screen_height, screen_height, max_iterations, current_center, current_zoom))
+##thread1.start()
+##
+##running = True
+##while running:
+##    for event in pygame.event.get():
+##        if event.type == pygame.QUIT:
+##            running = False
+##
+##        if not thread1.is_alive():
+##            if pygame.mouse.get_focused():
+##                if event.type == pygame.MOUSEBUTTONDOWN:
+##                    x, y = pygame.mouse.get_pos()
+##                    x = x - (screen_width/2-screen_height/2)
+##
+##                    if 0 <= x < screen_height:
+##                        global unit
+##                        x = x/screen_height*unit-(0.5*unit) + current_center[0]
+##                        y = y/screen_height*unit-(0.5*unit) + current_center[1]
+##                        current_zoom *= zoom
+##                        current_center = (x, y)
+##                        # max_iterations += int(1/(zoom/6) * max_iterations)
+##                        max_iterations += 100
+##                        print(current_zoom, current_center, max_iterations)
+##
+##                        thread1 = threading.Thread(target=draw_tile, args=(screen_height, screen_height, max_iterations, current_center, current_zoom))
+##                        thread1.start()
+##    clock.tick(60)
+##
+##pygame.quit()
