@@ -3,52 +3,49 @@
 import tkinter_displayer as display
 import task_manager
 
-# _______________Additional_Functions_________________ #
 
-
-def compute_image(max_iterations, corner_1, corner_2, canvas_size, number_of_workers, manager):
+def compute_image(max_iterations,
+                  corner_1,
+                  corner_2,
+                  canvas_size,
+                  number_of_workers,
+                  manager
+                 ):
 
     number_of_row = canvas_size[0]
 
     pool = manager.create_pool(number_of_workers)
     for row in range(number_of_row):
-        manager.task_list.append((compute_line, (max_iterations, corner_1, corner_2, row)))
+        manager.task_list.append((compute_line,
+                                  (max_iterations,
+                                   corner_1,
+                                   corner_2,
+                                   row,
+                                   canvas_size)
+                                 ))
         manager.start_processing()
 
 
+def compute_line(max_iterations, corner_1, corner_2, row, canvas_size):
 
-def compute_pixel(width, height, x_column, y_row, max_iterations, center):
-    """ Compute and draw a piece of the Mandelbrot fractal
+    divergence_values = []
+    imaginary = ((corner_1[1] - corner_2[0]) / canvas_size[0]) * (canvas_size[0] - row)
 
-    Parameters:
-        height (int): height in pixels of the image to compute
-        width (int): width in pixel of the image to compute
-        max_iterations (int): represent the limit to decide if a point is divergent or not
-        center (tuple): coordinates of the center of the window on the fractal
-        zoom (int): zoom power
+    for pixel in range(canvas_size[1]):
+        real = pixel
+        complex_number = complex(real, imaginary)
+        progression_number = complex(0, 0)
 
-    Returns:
-
-    """
-
-    imaginary = (x_column/width)*unit - (0.5*unit - center[0])
-    real = (y_row/height)*unit - (0.5*unit - center[1])
-
-    complex_number = complex(real, imaginary)
-
-    # starting position
-    progression_number = complex(0, 0)
-
-    for iteration in range(max_iterations):
-
+        for iteration in range(max_iterations):
         # next progression number
-        progression_number = progression_number * progression_number + complex_number
+            progression_number = progression_number * progression_number + complex_number
 
         # check if divergent
-        if abs(progression_number.real) > 2 or abs(progression_number.imag) > 2:
-            return iteration
-
-    return iteration
+            if abs(progression_number.real) > 2 or abs(progression_number.imag) > 2:
+                divergence_values.append(iteration)
+                break
+        divergence_values.append(iteration)
+    return divergence_values
 
 
 def iteration_to_color(iteration, max_iterations):
@@ -95,24 +92,6 @@ def hsl_to_rgb(H, S, L):
 
     (r,g,b) = ((R+m)*255, (G+m)*255,(B+m)*255)
     return (int(r+0.5),int(g+0.5),int(b+0.5))
-
-
-def print_pixel(color, position):
-    """ Draw one pixel on screen
-
-    Parameters:
-        color (tuple): r,g,b values for the pixel
-        position (tuple): x and y corrdinates of the pixel inside the image
-
-    Returns:
-
-    """
-    global screen
-    position_on_screen = (screen.get_width()/2-screen.get_height()/2+position[0], position[1])
-
-    pygame.draw.rect(screen, color, (position_on_screen[0], position_on_screen[1], 1, 1))
-    if position[0] == screen.get_height()-1:
-        pygame.display.update((position_on_screen[0]-screen.get_height()-1, position_on_screen[1], screen.get_height(), 1))
 
 # _____________Main_Programm_________________ #
 
