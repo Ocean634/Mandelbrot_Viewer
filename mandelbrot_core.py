@@ -1,7 +1,14 @@
 # Créé par Ocean6, le 07/04/2023 en Python 3.11
 
-import tkinter_displayer as display
-import task_manager
+try:
+    import tkinter_displayer as display
+except ImportError:
+    raise ImportError("tkinter_displayer module not found")
+
+try:
+    import task_manager
+except ImportError:
+    raise ImportError("task_manager module not found")
 
 
 def compute_image(max_iterations,
@@ -14,7 +21,7 @@ def compute_image(max_iterations,
 
     number_of_row = canvas_size[0]
 
-    pool = manager.create_pool(number_of_workers)
+    manager.create_pool(number_of_workers)
     for row in range(number_of_row):
         manager.task_list.append((compute_line,
                                   (max_iterations,
@@ -23,13 +30,15 @@ def compute_image(max_iterations,
                                    row,
                                    canvas_size)
                                  ))
-        manager.start_processing()
+
+    manager.create_lonely_thread()
 
 
 def compute_line(max_iterations, corner_1, corner_2, row, canvas_size):
 
     divergence_values = []
-    imaginary = ((corner_1[1] - corner_2[0]) / canvas_size[0]) * (canvas_size[0] - row)
+    imaginary = ((corner_1[1] - corner_2[0]) / canvas_size[0])\
+                * (canvas_size[0] - row)
 
     for pixel in range(canvas_size[1]):
         real = pixel
@@ -38,14 +47,16 @@ def compute_line(max_iterations, corner_1, corner_2, row, canvas_size):
 
         for iteration in range(max_iterations):
         # next progression number
-            progression_number = progression_number * progression_number + complex_number
+            progression_number = progression_number * progression_number\
+                                 + complex_number
 
         # check if divergent
-            if abs(progression_number.real) > 2 or abs(progression_number.imag) > 2:
+            if abs(progression_number.real) > 2\
+               or abs(progression_number.imag) > 2:
                 divergence_values.append(iteration)
                 break
         divergence_values.append(iteration)
-    return divergence_values
+    return (divergence_values, row)
 
 
 def iteration_to_color(iteration, max_iterations):
@@ -97,45 +108,19 @@ def hsl_to_rgb(H, S, L):
 
 max_iterations = 70
 zoom_power = 2
-# center = (-0.75, 0)
-# unit = 2
 corner_1 = (-1.75, 1)
 corner_2 = (0.25, -1)
+number_of_workers = 4
 
 if __name__ == "__main__":
-    # screen = display.Displayer()
-    # canvas_size = screen.get_canvas_size()
-    # manager = task_manager.Task_Manager()
-    pass
-
-
-##thread1 = threading.Thread(target=draw_tile, args=(screen_height, screen_height, max_iterations, current_center, current_zoom))
-##thread1.start()
-##
-##running = True
-##while running:
-##    for event in pygame.event.get():
-##        if event.type == pygame.QUIT:
-##            running = False
-##
-##        if not thread1.is_alive():
-##            if pygame.mouse.get_focused():
-##                if event.type == pygame.MOUSEBUTTONDOWN:
-##                    x, y = pygame.mouse.get_pos()
-##                    x = x - (screen_width/2-screen_height/2)
-##
-##                    if 0 <= x < screen_height:
-##                        global unit
-##                        x = x/screen_height*unit-(0.5*unit) + current_center[0]
-##                        y = y/screen_height*unit-(0.5*unit) + current_center[1]
-##                        current_zoom *= zoom
-##                        current_center = (x, y)
-##                        # max_iterations += int(1/(zoom/6) * max_iterations)
-##                        max_iterations += 100
-##                        print(current_zoom, current_center, max_iterations)
-##
-##                        thread1 = threading.Thread(target=draw_tile, args=(screen_height, screen_height, max_iterations, current_center, current_zoom))
-##                        thread1.start()
-##    clock.tick(60)
-##
-##pygame.quit()
+    screen = display.Displayer()
+    canvas_size = screen.get_canvas_size()
+    manager = task_manager.Task_Manager(screen)
+    compute_image(max_iterations,
+                  corner_1,
+                  corner_2,
+                  canvas_size,
+                  number_of_workers,
+                  manager,
+                 )
+    screen.start_running(manager)
