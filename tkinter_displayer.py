@@ -29,11 +29,17 @@ class Displayer:
     ratio = 0
 
     def __init__(self):
+
+        print("Displayer.__init__", task_manager.threading.current_thread().name)
+
         self.Master = self.create_window()
         self.Canvas = self.create_canvas()
 
 
     def start_running(self, manager):
+
+        print("Displayer.start_running", manager, task_manager.threading.current_thread().name)
+
         self.Master.bind("<<Thread_finished>>", manager.thread_end)
         self.Master.mainloop()
 
@@ -43,6 +49,9 @@ class Displayer:
         Returns:
             Tk_instance: main window of the application
         """
+
+        print("Displayer.create_window", task_manager.threading.current_thread().name)
+
         Master = tkinter.Tk()
         Master.minsize(width=320, height=180)
         Master.state("zoomed")
@@ -57,6 +66,9 @@ class Displayer:
         Returns:
             Canvas_instance: Drawing surface
         """
+
+        print("Displayer.create_canvas", task_manager.threading.current_thread().name)
+
         self.Frm = tkinter.Frame(self.Master)
         self.Frm.pack()
         self.canvas_height = self.Master.winfo_height()-4
@@ -72,14 +84,12 @@ class Displayer:
         return Canvas
 
 
-    def get_canvas_size(self):
-        """ Return the size of the drawing surface """
-        return (self.canvas_height, self.canvas_width)
-
-
     def draw_line(self, line, row):
+
+        print("Displayer.draw_line, len(line) =", len(line), row, task_manager.threading.current_thread().name)
+
         for pixel in range(len(line)):
-                self.draw_pixel((pixel, row+10), (pixel+1, row+10), line[pixel])
+                self.draw_pixel((pixel, row), (pixel+1, row), line[pixel])
 
 
     def draw_pixel(self, pos1, pos2, color):

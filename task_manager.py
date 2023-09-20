@@ -35,10 +35,16 @@ class Task_Manager:
     result_queue = []
 
     def __init__(self, display):
+
+        print("Task_Manager.__init__", display, threading.current_thread().name)
+
         self.display = display
 
 
     def create_lonely_thread(self):
+
+        print("Task_Manager.create_lonely_thread", threading.current_thread().name)
+
         employer = threading.Thread(target=self.start_processing, name="employer")
         employer.start()
 
@@ -46,12 +52,17 @@ class Task_Manager:
     def create_pool(self, number_of_workers):
         """ Prepare a set of threads in a usable space """
 
+        print("Task_Manager.create_pool", number_of_workers, threading.current_thread().name)
+
         for worker in range(number_of_workers):
             self.Pool.append(My_Thread(display=self.display))
 
 
     def start_processing(self):
         """ Execute the task list entirely with async threads """
+
+        print("Task_Manager.start_processing", threading.current_thread().name)
+
         while len(self.task_list) > 0:
             for worker in self.Pool:
                 if worker.state != 'RUNNING' and len(self.task_list) != 0:
@@ -65,6 +76,9 @@ class Task_Manager:
 
 
     def thread_end(self, event):
+
+        print("Task_Manager.thread_end", event, threading.current_thread().name)
+
         result = []
         data = self.result_queue.pop(0)
         # treatment function / palette
@@ -88,6 +102,9 @@ class My_Thread:
     manager = None
 
     def __init__(self, target=None, args=None, display=None, manager=None):
+
+        print("My_Thread.__init__", target, args, display, manager, threading.current_thread().name)
+
         if target:
             self.target = target
         if args:
@@ -101,11 +118,17 @@ class My_Thread:
 
 
     def start(self):
+
+        print("My_Thread.start", threading.current_thread().name)
+
         self.Thread.start()
         self.state = 'RUNNING'
 
 
     def task(self):
+
+        print("My_Thread.task", threading.current_thread().name)
+
         self.result = self.target(*self.args)
         self.manager.result_queue.append(self.result)
         self.display.Master.event_generate('<<Thread_finished>>')
