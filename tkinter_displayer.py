@@ -18,15 +18,27 @@ try:
 except ImportError:
     raise ImportError("task_manager module not found")
 
+try:
+    import mandelbrot_core
+except ImportError:
+    raise ImportError("mandelbrot_core module not found")
+
+try:
+    import sys
+except ImportError:
+    raise ImportError("sys module not found")
+
 
 class Displayer:
 
     Master = None
     Frm = None
     Canvas = None
+    img = None
     canvas_height = 0
     canvas_width = 0
     ratio = 0
+    result_queue = []
 
     def __init__(self):
 
@@ -40,8 +52,19 @@ class Displayer:
 
         print("Displayer.start_running", manager, task_manager.threading.current_thread().name)
 
-        self.Master.bind("<<Thread_finished>>", manager.thread_end)
-        self.Master.mainloop()
+        running = True
+        while running:
+            self.Master.update()
+
+            try:
+                self.Master.winfo_exists()
+            except tkinter._tkinter.TclError:
+                running = False
+
+            for i in range(10):
+                if len(self.result_queue) >= 1:
+                    self.display_data()
+        self.Master.quit()
 
     def create_window(self):
         """ Create tkinter root window
@@ -80,8 +103,24 @@ class Displayer:
                                 width = self.canvas_width
                                )
         Canvas.pack()
+        self.img = tkinter.PhotoImage(height=self.canvas_height, width=self.canvas_width)
+        Canvas.create_image((0, 0), image = self.img, state = "normal", anchor = tkinter.NW)
         self.Master.update()
         return Canvas
+
+
+    def display_data(self):
+        print("Displayer.display_data", task_manager.threading.current_thread().name)
+
+        result = []
+        data = self.result_queue.pop(0)
+        # treatment function / palette
+        for pixel in data[0]:
+            if pixel == mandelbrot_core.max_iterations-1:
+                result.append((0, 0, 0))
+            else:
+                result.append((1, 1, 1))
+        self.draw_line(result, data[1])
 
 
     def draw_line(self, line, row):
@@ -89,8 +128,9 @@ class Displayer:
         print("Displayer.draw_line, len(line) =", len(line), row, task_manager.threading.current_thread().name)
 
         for pixel in range(len(line)):
-                self.draw_pixel((pixel, row), (pixel+1, row), line[pixel])
+            # self.draw_pixel(pixel, row, pixel+1, row, line[pixel])
+            pass
 
 
-    def draw_pixel(self, pos1, pos2, color):
-        self.Canvas.create_line(pos1, pos2, fill='cyan')
+    def rgb_to_hex(r, g, b):
+        return '#{:02x}{:02x}{:02x}'.format(r, g, b)

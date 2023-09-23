@@ -32,7 +32,6 @@ class Task_Manager:
     number_of_workers = 1
     Pool = []
     display = None
-    result_queue = []
 
     def __init__(self, display):
 
@@ -75,22 +74,6 @@ class Task_Manager:
                     worker.start()
 
 
-    def thread_end(self, event):
-
-        print("Task_Manager.thread_end", event, threading.current_thread().name)
-
-        result = []
-        data = self.result_queue.pop(0)
-        # treatment function / palette
-        for pixel in data[0]:
-            if pixel == mandelbrot_core.max_iterations-1:
-                result.append((0, 0, 0))
-            else:
-                result.append((1, 1, 1))
-
-        self.display.draw_line(result, data[1])
-
-
 class My_Thread:
 
     result = None
@@ -104,7 +87,7 @@ class My_Thread:
     def __init__(self, target=None, args=None, display=None, manager=None):
 
         print("My_Thread.__init__", target, args, display, manager, threading.current_thread().name)
-
+        self.state = 'INIT'
         if target:
             self.target = target
         if args:
@@ -114,22 +97,17 @@ class My_Thread:
         if manager:
             self.manager = manager
         self.Thread = threading.Thread(target=self.task, args=[])
-        self.state = 'INIT'
 
 
     def start(self):
-
-        print("My_Thread.start", threading.current_thread().name)
-
-        self.Thread.start()
         self.state = 'RUNNING'
+        print("My_Thread.start", threading.current_thread().name)
+        self.Thread.start()
 
 
     def task(self):
 
         print("My_Thread.task", threading.current_thread().name)
-
         self.result = self.target(*self.args)
-        self.manager.result_queue.append(self.result)
-        self.display.Master.event_generate('<<Thread_finished>>')
+        self.display.result_queue.append(self.result)
         self.state = 'DEAD'
