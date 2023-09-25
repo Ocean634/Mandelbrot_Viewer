@@ -10,6 +10,7 @@ try:
 except ImportError:
     raise ImportError("task_manager module not found")
 
+import time
 
 def compute_image(max_iterations,
                   corner_1,
@@ -19,8 +20,7 @@ def compute_image(max_iterations,
                   manager
                  ):
 
-    print("compute_image", max_iterations, corner_1, corner_2, canvas_size, number_of_workers, manager, task_manager.threading.current_thread().name)
-
+    print("compute_image", max_iterations, corner_1, corner_2, canvas_size, number_of_workers, task_manager.threading.current_thread().name)
     number_of_row = canvas_size[0]
 
     manager.create_pool(number_of_workers)
@@ -37,14 +37,14 @@ def compute_image(max_iterations,
 
 
 def compute_line(max_iterations, corner_1, corner_2, row, canvas_size):
-    print("compute_line", max_iterations, corner_1, corner_2, row, canvas_size, task_manager.threading.current_thread().name)
-
+    # print("compute_line", max_iterations, corner_1, corner_2, row, canvas_size, task_manager.threading.current_thread().name, end="     ")
+    start_time = time.time()
     divergence_values = []
-    imaginary = ((corner_1[1] - corner_2[0]) / canvas_size[0])\
-                * (canvas_size[0] - row)
+    imaginary = corner_1[1] - row * ((corner_1[1]-corner_2[1]) / canvas_size[0])
 
-    for pixel in range(canvas_size[1]):
-        real = pixel
+    for column in range(canvas_size[1]):
+        flag = False
+        real = corner_1[0] + column * ((corner_2[0]-corner_1[0]) / canvas_size[1])
         complex_number = complex(real, imaginary)
         progression_number = complex(0, 0)
 
@@ -57,8 +57,13 @@ def compute_line(max_iterations, corner_1, corner_2, row, canvas_size):
             if abs(progression_number.real) > 2\
                or abs(progression_number.imag) > 2:
                 divergence_values.append(iteration)
+                flag = True
                 break
-        divergence_values.append(iteration)
+
+        if flag is False:
+            divergence_values.append(iteration)
+    # print(time.time()-start_time)
+    print(row)
     return (divergence_values, row)
 
 
