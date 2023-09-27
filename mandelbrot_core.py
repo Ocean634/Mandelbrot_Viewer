@@ -51,7 +51,7 @@ def compute_line(max_iterations, corner_1, corner_2, row, canvas_size):
         if flag is False:
             divergence_values.append(iteration)
     # print(time.time()-start_time)
-    print(row)
+    # print(row)
     return (divergence_values, row)
 
 
@@ -103,12 +103,30 @@ def hsl_to_rgb(H, S, L):
 
 def get_center(corner_1, corner_2):
     x = corner_1[0] + 0.5*(corner_2[0]-corner_1[0])
-    y = corner_2[1] + 0.5*(corner_1[0]-corner_2[0])
+    y = corner_2[1] + 0.5*(corner_1[1]-corner_2[1])
     return (x, y)
 
 
 def fit_screen_size(corner_1, corner_2, screen):
-    ratio_image =
+    height = corner_1[1]-corner_2[1]
+    width = corner_2[0]-corner_1[0]
+    ratio_image = width / height
+    center = get_center(corner_1, corner_2)
+    print(center, width, height)
+
+    if screen.ratio > ratio_image: # modify width [0]
+        new_width = screen.ratio * height
+        print(new_width)
+        corner_1 = (center[0]-(0.5*new_width), corner_1[1])
+        corner_2 = (center[0]+(0.5*new_width), corner_2[1])
+        print(corner_1, corner_2)
+
+    elif screen.ratio < ratio_image: # modify height [1]
+        new_height = width / screen.ratio
+        print(new_height)
+        corner_1 = (corner_1[0], center[1]+(0.5*new_height))
+        corner_2 = (corner_2[0], center[1]-(0.5*new_height))
+        print(corner_1, corner_2)
 
     return (corner_1, corner_2)
 
@@ -116,8 +134,8 @@ def fit_screen_size(corner_1, corner_2, screen):
 
 max_iterations = 70
 zoom_power = 2
-corner_1 = (-1.75, 1)
-corner_2 = (0.25, -1)
+corner_1 = (-2, 1.2)
+corner_2 = (1, -1.2)
 number_of_workers = 4
 
 if __name__ == "__main__":

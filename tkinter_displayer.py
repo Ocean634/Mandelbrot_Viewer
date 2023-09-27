@@ -43,18 +43,18 @@ class Displayer:
 
 
     def __init__(self):
-
-        print("Displayer.__init__", task_manager.threading.current_thread().name)
-
         self.Master = self.create_window()
         self.Canvas = self.create_canvas()
 
 
     def start_running(self, manager):
 
-        print("Displayer.start_running", manager, task_manager.threading.current_thread().name)
-        time.sleep(15)
+        while len(manager.task_list) > 0:
+            self.Master.update()
+        time.sleep(0.2)
+
         self.display_data()
+
         running = True
         while running:
             self.Master.update()
@@ -64,9 +64,6 @@ class Displayer:
             except tkinter._tkinter.TclError:
                 running = False
 
-##            for i in range(10):
-##            if len(self.result_queue) >= 1:
-##                self.display_data()
         self.Master.quit()
 
     def create_window(self):
@@ -75,8 +72,6 @@ class Displayer:
         Returns:
             Tk_instance: main window of the application
         """
-
-        print("Displayer.create_window", task_manager.threading.current_thread().name)
 
         Master = tkinter.Tk()
         Master.minsize(width=320, height=180)
@@ -93,14 +88,11 @@ class Displayer:
             Canvas_instance: Drawing surface
         """
 
-        print("Displayer.create_canvas", task_manager.threading.current_thread().name)
-
         self.Frm = tkinter.Frame(self.Master)
         self.Frm.pack()
         self.canvas_height = self.Master.winfo_height()-4
         self.canvas_width = self.Master.winfo_width()-4
         self.ratio = self.canvas_width / self.canvas_height
-        print(self.ratio)
         Canvas = tkinter.Canvas(self.Frm,
                                 bg="black",
                                 height = self.canvas_height,
@@ -160,7 +152,6 @@ class Displayer:
 
 
     def display_data(self):
-        print("Displayer.display_data", task_manager.threading.current_thread().name)
         data = self.collapse_data()
         width = self.canvas_width
         height = self.canvas_height
