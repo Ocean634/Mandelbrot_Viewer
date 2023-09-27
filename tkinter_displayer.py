@@ -100,6 +100,7 @@ class Displayer:
         self.canvas_height = self.Master.winfo_height()-4
         self.canvas_width = self.Master.winfo_width()-4
         self.ratio = self.canvas_width / self.canvas_height
+        print(self.ratio)
         Canvas = tkinter.Canvas(self.Frm,
                                 bg="black",
                                 height = self.canvas_height,

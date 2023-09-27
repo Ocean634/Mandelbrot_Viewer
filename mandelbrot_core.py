@@ -12,26 +12,14 @@ except ImportError:
 
 import time
 
-def compute_image(max_iterations,
-                  corner_1,
-                  corner_2,
-                  canvas_size,
-                  number_of_workers,
-                  manager
-                 ):
-
-    print("compute_image", max_iterations, corner_1, corner_2, canvas_size, number_of_workers, task_manager.threading.current_thread().name)
-    number_of_row = canvas_size[0]
+def compute_image(max_iterations, corner_1, corner_2, canvas_size,
+                  number_of_workers, manager):
 
     manager.create_pool(number_of_workers)
-    for row in range(number_of_row):
-        manager.task_list.append((compute_line,
-                                  (max_iterations,
-                                   corner_1,
-                                   corner_2,
-                                   row,
-                                   canvas_size)
-                                 ))
+
+    for row in range(canvas_size[0]):
+        manager.task_list.append((compute_line, (max_iterations, corner_1,
+                                  corner_2, row, canvas_size)))
 
     manager.create_lonely_thread()
 
@@ -112,6 +100,18 @@ def hsl_to_rgb(H, S, L):
     (r,g,b) = ((R+m)*255, (G+m)*255,(B+m)*255)
     return (int(r+0.5),int(g+0.5),int(b+0.5))
 
+
+def get_center(corner_1, corner_2):
+    x = corner_1[0] + 0.5*(corner_2[0]-corner_1[0])
+    y = corner_2[1] + 0.5*(corner_1[0]-corner_2[0])
+    return (x, y)
+
+
+def fit_screen_size(corner_1, corner_2, screen):
+    ratio_image =
+
+    return (corner_1, corner_2)
+
 # _____________Main_Programm_________________ #
 
 max_iterations = 70
@@ -124,6 +124,7 @@ if __name__ == "__main__":
     screen = display.Displayer()
     canvas_size = (screen.canvas_height, screen.canvas_width)
     manager = task_manager.Task_Manager(screen)
+    (corner_1, corner_2) = fit_screen_size(corner_1, corner_2, screen)
     compute_image(max_iterations,
                   corner_1,
                   corner_2,
