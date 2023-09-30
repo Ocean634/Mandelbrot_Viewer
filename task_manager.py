@@ -29,7 +29,6 @@ import time
 class Task_Manager:
 
     task_list = []
-    number_of_workers = 1
     Pool = []
     display = None
 
@@ -54,24 +53,29 @@ class Task_Manager:
         # print("Task_Manager.create_pool", number_of_workers, threading.current_thread().name)
 
         for worker in range(number_of_workers):
-            self.Pool.append(My_Thread(display=self.display))
+            self.Pool.append(My_Thread(display=self.display, name=f"Thread {worker+1}"))
 
 
     def start_processing(self):
         """ Execute the task list entirely with async threads """
 
-        # print("Task_Manager.start_processing", threading.current_thread().name)
         starting_time = time.time()
         while len(self.task_list) > 0:
+
             for worker in self.Pool:
+
                 if worker.state != 'RUNNING' and len(self.task_list) != 0:
+
+                    print(worker.Thread.name,  worker.time, end="      ")
                     (target, args) = self.task_list.pop(0)
                     worker = My_Thread(target=target,
                                        args=args,
                                        display=self.display,
-                                       manager=self
+                                       manager=self,
+                                       time=time.time()
                                       )
                     worker.start()
+            print("")
         print(time.time()-starting_time)
 
 
@@ -84,31 +88,26 @@ class My_Thread:
     Thread = None
     display = None
     manager = None
+    name = None
+    time = 0
 
-    def __init__(self, target=None, args=None, display=None, manager=None):
-
-        # print("My_Thread.__init__", target, args, threading.current_thread().name)
+    def __init__(self, target=None, args=None, display=None, manager=None, name=None, time=0):
         self.state = 'INIT'
-        if target:
-            self.target = target
-        if args:
-            self.args = args
-        if display:
-            self.display = display
-        if manager:
-            self.manager = manager
-        self.Thread = threading.Thread(target=self.task, args=[])
+        self.target = target
+        self.args = args
+        self.display = display
+        self.manager = manager
+        self.name = name
+        self.time = time
+        self.Thread = threading.Thread(target=self.task, args=[], name=self.name)
 
 
     def start(self):
         self.state = 'RUNNING'
-        # print("My_Thread.start", threading.current_thread().name)
         self.Thread.start()
 
 
     def task(self):
-
-        # print("My_Thread.task", threading.current_thread().name)
         self.result = self.target(*self.args)
         self.display.result_queue.append(self.result)
         self.state = 'DEAD'

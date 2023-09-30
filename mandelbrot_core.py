@@ -151,5 +151,3 @@ if __name__ == "__main__":
                   manager,
                  )
     screen.start_running(manager)
-
-# https://code.activestate.com/recipes/579048-python-mandelbrot-fractal-with-tkinter/
