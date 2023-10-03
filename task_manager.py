@@ -55,7 +55,7 @@ class Task_Manager:
         for worker in range(number_of_workers):
             self.Pool.append(My_Thread(display=self.display, name=f"Worker {worker+1}", args=[None, None, None, None]))
 
-
+    @profile
     def start_processing(self):
         """ Execute the task list entirely with async threads """
 

@@ -23,7 +23,7 @@ def compute_image(max_iterations, corner_1, corner_2, canvas_size,
 
     manager.create_lonely_thread()
 
-
+@profile
 def compute_line(max_iterations, corner_1, corner_2, row, canvas_size):
     # print("compute_line", row, task_manager.threading.current_thread().name, end="     ")
     start_time = time.time()
@@ -54,59 +54,13 @@ def compute_line(max_iterations, corner_1, corner_2, row, canvas_size):
     # print(row)
     return (divergence_values, row)
 
-
-def iteration_to_color(iteration, max_iterations):
-    # not divergent
-    if iteration == max_iterations-1:
-        return (0,0,0)
-
-    # playing on the hue value
-    h,l,s = iteration%360, 1.0, 0.5
-    r,g,b = hsl_to_rgb(h, l, s)
-    return (r,g,b)
-
-
-def hsl_to_rgb(H, S, L):
-    """ Transfert colorization format from HLS to RGB
-
-    Parameters :
-        H (float): hue value (between 0° and 360°)
-        S (float): saturation value (between 0 and 1)
-        L (float): lightness (between 0 and 1)
-
-    Returns:
-        int: red value
-        int: green value
-        int: blue value
-
-    """
-    C = (1 - abs(2*L - 1)) * S
-    X = C * (1 - abs((H / 60) % 2 - 1))
-    m = L - C/2
-
-    if 0 <= H < 60:
-        R,G,B = C,X,0
-    elif 60 <= H < 120:
-        R,G,B = X,C,0
-    elif 120 <= H < 180:
-        R,G,B = 0,C,X
-    elif 180 <= H < 240:
-        R,G,B = 0,X,C
-    elif 240 <= H < 300:
-        R,G,B = X,0,C
-    elif 300 <= H < 360:
-        R,G,B = C,0,X
-
-    (r,g,b) = ((R+m)*255, (G+m)*255,(B+m)*255)
-    return (int(r+0.5),int(g+0.5),int(b+0.5))
-
-
+@profile
 def get_center(corner_1, corner_2):
     x = corner_1[0] + 0.5*(corner_2[0]-corner_1[0])
     y = corner_2[1] + 0.5*(corner_1[1]-corner_2[1])
     return (x, y)
 
-
+@profile
 def fit_screen_size(corner_1, corner_2, screen):
     height = corner_1[1]-corner_2[1]
     width = corner_2[0]-corner_1[0]
@@ -138,7 +92,13 @@ corner_1 = (-2, 1.2)
 corner_2 = (1, -1.2)
 number_of_workers = 2
 
-if __name__ == "__main__":
+@profile
+def main():
+    global max_iterations
+    global zoom_power
+    global corner_1
+    global corner_2
+    global number_of_workers
     screen = display.Displayer()
     canvas_size = (screen.canvas_height, screen.canvas_width)
     manager = task_manager.Task_Manager(screen)
@@ -151,3 +111,9 @@ if __name__ == "__main__":
                   manager,
                  )
     screen.start_running(manager)
+
+
+if __name__ == "__main__":
+    main()
+
+# http://igm.univ-mlv.fr/~alabarre/teaching/qualgo/qualgo01profilage-handout.pdf

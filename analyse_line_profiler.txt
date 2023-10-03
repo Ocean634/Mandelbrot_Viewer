@@ -1,0 +1,289 @@
+Timer unit: 1e-06 s
+
+Total time: 0 s
+File: C:\Users\clene\Documents\Programmation\GitHub\Mandelbrot_Viewer\mandelbrot_core.py
+Function: compute_line at line 26
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    26                                           @profile
+    27                                           def compute_line(max_iterations, corner_1, corner_2, row, canvas_size):
+    28                                               # print("compute_line", row, task_manager.threading.current_thread().name, end="     ")
+    29                                               start_time = time.time()
+    30                                               divergence_values = []
+    31                                               imaginary = corner_1[1] - row * ((corner_1[1]-corner_2[1]) / canvas_size[0])
+    32
+    33                                               for column in range(canvas_size[1]):
+    34                                                   flag = False
+    35                                                   real = corner_1[0] + column * ((corner_2[0]-corner_1[0]) / canvas_size[1])
+    36                                                   complex_number = complex(real, imaginary)
+    37                                                   progression_number = complex(0, 0)
+    38
+    39                                                   for iteration in range(max_iterations):
+    40                                                   # next progression number
+    41                                                       progression_number = progression_number * progression_number\
+    42                                                                            + complex_number
+    43
+    44                                                   # check if divergent
+    45                                                       if abs(progression_number.real) > 2\
+    46                                                          or abs(progression_number.imag) > 2:
+    47                                                           divergence_values.append(iteration)
+    48                                                           flag = True
+    49                                                           break
+    50
+    51                                                   if flag is False:
+    52                                                       divergence_values.append(iteration)
+    53                                               # print(time.time()-start_time)
+    54                                               # print(row)
+    55                                               return (divergence_values, row)
+
+Total time: 0 s
+File: C:\Users\clene\Documents\Programmation\GitHub\Mandelbrot_Viewer\mandelbrot_core.py
+Function: get_center at line 57
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    57                                           @profile
+    58                                           def get_center(corner_1, corner_2):
+    59                                               x = corner_1[0] + 0.5*(corner_2[0]-corner_1[0])
+    60                                               y = corner_2[1] + 0.5*(corner_1[1]-corner_2[1])
+    61                                               return (x, y)
+
+Total time: 0 s
+File: C:\Users\clene\Documents\Programmation\GitHub\Mandelbrot_Viewer\mandelbrot_core.py
+Function: fit_screen_size at line 63
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    63                                           @profile
+    64                                           def fit_screen_size(corner_1, corner_2, screen):
+    65                                               height = corner_1[1]-corner_2[1]
+    66                                               width = corner_2[0]-corner_1[0]
+    67                                               ratio_image = width / height
+    68                                               center = get_center(corner_1, corner_2)
+    69                                               print(center, width, height)
+    70
+    71                                               if screen.ratio > ratio_image: # modify width [0]
+    72                                                   new_width = screen.ratio * height
+    73                                                   print(new_width)
+    74                                                   corner_1 = (center[0]-(0.5*new_width), corner_1[1])
+    75                                                   corner_2 = (center[0]+(0.5*new_width), corner_2[1])
+    76                                                   print(corner_1, corner_2)
+    77
+    78                                               elif screen.ratio < ratio_image: # modify height [1]
+    79                                                   new_height = width / screen.ratio
+    80                                                   print(new_height)
+    81                                                   corner_1 = (corner_1[0], center[1]+(0.5*new_height))
+    82                                                   corner_2 = (corner_2[0], center[1]-(0.5*new_height))
+    83                                                   print(corner_1, corner_2)
+    84
+    85                                               return (corner_1, corner_2)
+
+Total time: 0 s
+File: C:\Users\clene\Documents\Programmation\GitHub\Mandelbrot_Viewer\mandelbrot_core.py
+Function: main at line 95
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    95                                           @profile
+    96                                           def main():
+    97                                               global max_iterations
+    98                                               global zoom_power
+    99                                               global corner_1
+   100                                               global corner_2
+   101                                               global number_of_workers
+   102                                               screen = display.Displayer()
+   103                                               canvas_size = (screen.canvas_height, screen.canvas_width)
+   104                                               manager = task_manager.Task_Manager(screen)
+   105                                               (corner_1, corner_2) = fit_screen_size(corner_1, corner_2, screen)
+   106                                               compute_image(max_iterations,
+   107                                                             corner_1,
+   108                                                             corner_2,
+   109                                                             canvas_size,
+   110                                                             number_of_workers,
+   111                                                             manager,
+   112                                                            )
+   113                                               screen.start_running(manager)
+
+Total time: 103.872 s
+File: C:\Users\clene\Documents\Programmation\GitHub\Mandelbrot_Viewer\task_manager.py
+Function: start_processing at line 58
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    58                                               @profile
+    59                                               def start_processing(self):
+    60                                                   """ Execute the task list entirely with async threads """
+    61
+    62         1          1.9      1.9      0.0          starting_time = time.time()
+    63      1913       6931.3      3.6      0.0          while len(self.task_list) > 0:
+    64
+    65      5736       6509.9      1.1      0.0              for space_number in range(len(self.Pool)):
+    66      3824      38297.6     10.0      0.0                  print(self.Pool[space_number].Thread.name, self.Pool[space_number].state, f"row {self.Pool[space_number].args[3]}", end="  ")
+    67      3824       3833.5      1.0      0.0                  if self.Pool[space_number].state != 'RUNNING' and len(self.task_list) != 0:
+    68
+    69                                                               # print(self.Pool[space_number].Thread.name, f"row {self.Pool[space_number].args[3]}", end="   ")
+    70      1005       2445.3      2.4      0.0                      (target, args) = self.task_list.pop(0)
+    71      2010      66294.7     33.0      0.1                      self.Pool[space_number] = My_Thread(target=target,
+    72      1005        405.0      0.4      0.0                                                          args=args,
+    73      1005        591.8      0.6      0.0                                                          display=self.display,
+    74      1005        517.8      0.5      0.0                                                          manager=self,
+    75      1005        586.1      0.6      0.0                                                          name=self.Pool[space_number].name
+    76                                                                                                  )
+    77      1005   43088063.6  42873.7     41.5                      self.Pool[space_number].start()
+    78      1912   60657586.4  31724.7     58.4              print("")
+    79         1        104.4    104.4      0.0          print(time.time()-starting_time)
+
+Total time: 25.3188 s
+File: C:\Users\clene\Documents\Programmation\GitHub\Mandelbrot_Viewer\tkinter_displayer.py
+Function: iteration_to_color at line 101
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   101                                               @profile
+   102                                               def iteration_to_color(self, iteration, max_iterations):
+   103                                                   # not divergent
+   104   1925580     579189.2      0.3      2.3          if iteration == max_iterations-1:
+   105    274500      59328.6      0.2      0.2              return (0,0,0)
+   106
+   107                                                   # playing on the hue value
+   108   1651080     484676.5      0.3      1.9          h,l,s = iteration%360, 1.0, 0.5
+   109   1651080   23724815.7     14.4     93.7          r,g,b = self.hsl_to_rgb(h, l, s)
+   110   1651080     470795.3      0.3      1.9          return (r,g,b)
+
+Total time: 11.2335 s
+File: C:\Users\clene\Documents\Programmation\GitHub\Mandelbrot_Viewer\tkinter_displayer.py
+Function: hsl_to_rgb at line 112
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   112                                               @profile
+   113                                               def hsl_to_rgb(self, H, S, L):
+   114                                                   """ Transfert colorization format from HLS to RGB
+   115
+   116                                                   Parameters :
+   117                                                       H (float): hue value (between 0° and 360°)
+   118                                                       S (float): saturation value (between 0 and 1)
+   119                                                       L (float): lightness (between 0 and 1)
+   120
+   121                                                   Returns:
+   122                                                       int: red value
+   123                                                       int: green value
+   124                                                       int: blue value
+   125
+   126                                                   """
+   127   1651080    1464439.5      0.9     13.0          C = (1 - abs(2*L - 1)) * S
+   128   1651080    2100191.2      1.3     18.7          X = C * (1 - abs((H / 60) % 2 - 1))
+   129   1651080     485266.2      0.3      4.3          m = L - C/2
+   130
+   131   1651080     510944.5      0.3      4.5          if 0 <= H < 60:
+   132   1649540     432773.4      0.3      3.9              R,G,B = C,X,0
+   133      1540        519.9      0.3      0.0          elif 60 <= H < 120:
+   134      1540        406.3      0.3      0.0              R,G,B = X,C,0
+   135                                                   elif 120 <= H < 180:
+   136                                                       R,G,B = 0,C,X
+   137                                                   elif 180 <= H < 240:
+   138                                                       R,G,B = 0,X,C
+   139                                                   elif 240 <= H < 300:
+   140                                                       R,G,B = X,0,C
+   141                                                   elif 300 <= H < 360:
+   142                                                       R,G,B = C,0,X
+   143
+   144   1651080     703107.1      0.4      6.3          (r,g,b) = ((R+m)*255, (G+m)*255,(B+m)*255)
+   145   1651080    5535882.8      3.4     49.3          return (int(r+0.5),int(g+0.5),int(b+0.5))
+
+Total time: 134.529 s
+File: C:\Users\clene\Documents\Programmation\GitHub\Mandelbrot_Viewer\tkinter_displayer.py
+Function: display_data at line 147
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   147                                               @profile
+   148                                               def display_data(self):
+   149       166        453.1      2.7      0.0          if  len(self.result_queue) > 10:
+   150      1034        755.3      0.7      0.0              for i in range(10):
+   151       940   47471883.4  50502.0     35.3                  self.put_data()
+   152        72         62.3      0.9      0.0          elif len(self.result_queue) > 0:
+   153        65    2889544.3  44454.5      2.1              self.put_data()
+   154       166   84165912.7 507023.6     62.6          self.img.put(self.raw_image)
+
+Total time: 47.5349 s
+File: C:\Users\clene\Documents\Programmation\GitHub\Mandelbrot_Viewer\tkinter_displayer.py
+Function: put_data at line 157
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   157                                               @profile
+   158                                               def put_data(self):
+   159      1005       1212.2      1.2      0.0          max_iter = mandelbrot_core.max_iterations
+   160      1005      17887.4     17.8      0.0          data = self.result_queue.pop(0)[0]
+   161      1005        358.4      0.4      0.0          line = " {"
+   162      1005   44689362.8  44467.0     94.0          line += " ".join(self.rgb_to_hex(self.iteration_to_color(value, max_iter)) for value in data)
+   163      1005       2300.1      2.3      0.0          line += "}"
+   164      1005    2823759.5   2809.7      5.9          self.raw_image += line
+   165
+   166                                                   # raw_image = " ".join((("{"+" ".join(self.rgb_to_hex(self.iteration_to_color(data[j][i], mandelbrot_core.max_iterations)) for i in range(width))) + "}" for j in range(height)))
+
+Total time: 132.507 s
+File: mandelbrot_core.py
+Function: compute_line at line 26
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    26                                           @profile
+    27                                           def compute_line(max_iterations, corner_1, corner_2, row, canvas_size):
+    28                                               # print("compute_line", row, task_manager.threading.current_thread().name, end="     ")
+    29      1005       2209.5      2.2      0.0      start_time = time.time()
+    30      1005        483.4      0.5      0.0      divergence_values = []
+    31      1005       1665.8      1.7      0.0      imaginary = corner_1[1] - row * ((corner_1[1]-corner_2[1]) / canvas_size[0])
+    32
+    33   1926585     497656.6      0.3      0.4      for column in range(canvas_size[1]):
+    34   1925580     417911.3      0.2      0.3          flag = False
+    35   1925580     918979.3      0.5      0.7          real = corner_1[0] + column * ((corner_2[0]-corner_1[0]) / canvas_size[1])
+    36   1925580    3138637.0      1.6      2.4          complex_number = complex(real, imaginary)
+    37   1925580    1311943.6      0.7      1.0          progression_number = complex(0, 0)
+    38
+    39  25837683    6939224.3      0.3      5.2          for iteration in range(max_iterations):
+    40                                                   # next progression number
+    41  51126682   13561615.2      0.3     10.2              progression_number = progression_number * progression_number\
+    42  25563341    5069061.2      0.2      3.8                                   + complex_number
+    43
+    44                                                   # check if divergent
+    45  25563341   72077410.8      2.8     54.4              if abs(progression_number.real) > 2\
+    46  24482958   23685206.6      1.0     17.9                 or abs(progression_number.imag) > 2:
+    47   1651238    1297872.0      0.8      1.0                  divergence_values.append(iteration)
+    48   1651238     387253.9      0.2      0.3                  flag = True
+    49   1651238     383229.6      0.2      0.3                  break
+    50
+    51   1925580    2122518.9      1.1      1.6          if flag is False:
+    52    274342     693597.3      2.5      0.5              divergence_values.append(iteration)
+    53                                               # print(time.time()-start_time)
+    54                                               # print(row)
+    55      1005        429.7      0.4      0.0      return (divergence_values, row)
+
+Total time: 2.9e-06 s
+File: mandelbrot_core.py
+Function: get_center at line 57
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    57                                           @profile
+    58                                           def get_center(corner_1, corner_2):
+    59         1          2.0      2.0     69.0      x = corner_1[0] + 0.5*(corner_2[0]-corner_1[0])
+    60         1          0.6      0.6     20.7      y = corner_2[1] + 0.5*(corner_1[1]-corner_2[1])
+    61         1          0.3      0.3     10.3      return (x, y)
+
+Total time: 0.0001697 s
+File: mandelbrot_core.py
+Function: fit_screen_size at line 63
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    63                                           @profile
+   107         1          0.3      0.3      0.0                    corner_1,
+   108         1          0.6      0.6      0.0                    corner_2,
+   109         1          0.3      0.3      0.0                    canvas_size,
+   110         1          0.4      0.4      0.0                    number_of_workers,
+   111         1          0.3      0.3      0.0                    manager,
+   112                                                            )
+   113         1  137971474.2    1e+08     99.9      screen.start_running(manager)

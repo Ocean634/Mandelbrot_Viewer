@@ -29,6 +29,7 @@ except ImportError:
     raise ImportError("sys module not found")
 
 import time
+from line_profiler import profile
 
 class Displayer:
 
@@ -51,11 +52,9 @@ class Displayer:
     def start_running(self, manager):
         running = True
         while running:
-            self.Master.update()
-            self.display_data()
-
             try:
-                self.Master.winfo_exists()
+                self.Master.update()
+                self.display_data()
             except tkinter._tkinter.TclError:
                 running = False
 
@@ -99,7 +98,7 @@ class Displayer:
         self.Master.update()
         return Canvas
 
-
+    @profile
     def iteration_to_color(self, iteration, max_iterations):
         # not divergent
         if iteration == max_iterations-1:
@@ -110,7 +109,7 @@ class Displayer:
         r,g,b = self.hsl_to_rgb(h, l, s)
         return (r,g,b)
 
-
+    @profile
     def hsl_to_rgb(self, H, S, L):
         """ Transfert colorization format from HLS to RGB
 
@@ -145,27 +144,26 @@ class Displayer:
         (r,g,b) = ((R+m)*255, (G+m)*255,(B+m)*255)
         return (int(r+0.5),int(g+0.5),int(b+0.5))
 
-
+    @profile
     def display_data(self):
         if  len(self.result_queue) > 10:
             for i in range(10):
                 self.put_data()
         elif len(self.result_queue) > 0:
             self.put_data()
+        self.img.put(self.raw_image)
 
 
+    @profile
     def put_data(self):
         max_iter = mandelbrot_core.max_iterations
         data = self.result_queue.pop(0)[0]
-        width = self.canvas_width
-        height = self.canvas_height
         line = " {"
         line += " ".join(self.rgb_to_hex(self.iteration_to_color(value, max_iter)) for value in data)
         line += "}"
         self.raw_image += line
 
         # raw_image = " ".join((("{"+" ".join(self.rgb_to_hex(self.iteration_to_color(data[j][i], mandelbrot_core.max_iterations)) for i in range(width))) + "}" for j in range(height)))
-        self.img.put(self.raw_image)
 
     def rgb_to_hex(self, color):
         return ' #{:02x}{:02x}{:02x}'.format(color[0], color[1], color[2])
