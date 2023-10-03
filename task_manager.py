@@ -53,7 +53,7 @@ class Task_Manager:
         # print("Task_Manager.create_pool", number_of_workers, threading.current_thread().name)
 
         for worker in range(number_of_workers):
-            self.Pool.append(My_Thread(display=self.display, name=f"Thread {worker+1}"))
+            self.Pool.append(My_Thread(display=self.display, name=f"Worker {worker+1}", args=[None, None, None, None]))
 
 
     def start_processing(self):
@@ -62,19 +62,19 @@ class Task_Manager:
         starting_time = time.time()
         while len(self.task_list) > 0:
 
-            for worker in self.Pool:
+            for space_number in range(len(self.Pool)):
+                print(self.Pool[space_number].Thread.name, self.Pool[space_number].state, f"row {self.Pool[space_number].args[3]}", end="  ")
+                if self.Pool[space_number].state != 'RUNNING' and len(self.task_list) != 0:
 
-                if worker.state != 'RUNNING' and len(self.task_list) != 0:
-
-                    print(worker.Thread.name,  worker.time, end="      ")
+                    # print(self.Pool[space_number].Thread.name, f"row {self.Pool[space_number].args[3]}", end="   ")
                     (target, args) = self.task_list.pop(0)
-                    worker = My_Thread(target=target,
-                                       args=args,
-                                       display=self.display,
-                                       manager=self,
-                                       time=time.time()
-                                      )
-                    worker.start()
+                    self.Pool[space_number] = My_Thread(target=target,
+                                                        args=args,
+                                                        display=self.display,
+                                                        manager=self,
+                                                        name=self.Pool[space_number].name
+                                                       )
+                    self.Pool[space_number].start()
             print("")
         print(time.time()-starting_time)
 

@@ -25,7 +25,7 @@ def compute_image(max_iterations, corner_1, corner_2, canvas_size,
 
 
 def compute_line(max_iterations, corner_1, corner_2, row, canvas_size):
-    # print("compute_line", max_iterations, corner_1, corner_2, row, canvas_size, task_manager.threading.current_thread().name, end="     ")
+    # print("compute_line", row, task_manager.threading.current_thread().name, end="     ")
     start_time = time.time()
     divergence_values = []
     imaginary = corner_1[1] - row * ((corner_1[1]-corner_2[1]) / canvas_size[0])
@@ -136,7 +136,7 @@ max_iterations = 70
 zoom_power = 2
 corner_1 = (-2, 1.2)
 corner_2 = (1, -1.2)
-number_of_workers = 4
+number_of_workers = 2
 
 if __name__ == "__main__":
     screen = display.Displayer()

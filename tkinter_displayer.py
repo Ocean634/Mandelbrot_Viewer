@@ -40,6 +40,7 @@ class Displayer:
     canvas_width = 0
     ratio = 0
     result_queue = []
+    raw_image = ""
 
 
     def __init__(self):
@@ -48,16 +49,10 @@ class Displayer:
 
 
     def start_running(self, manager):
-
-        while len(manager.task_list) > 0:
-            self.Master.update()
-        time.sleep(0.2)
-
-        self.display_data()
-
         running = True
         while running:
             self.Master.update()
+            self.display_data()
 
             try:
                 self.Master.winfo_exists()
@@ -152,19 +147,25 @@ class Displayer:
 
 
     def display_data(self):
-        data = self.collapse_data()
+        if  len(self.result_queue) > 10:
+            for i in range(10):
+                self.put_data()
+        elif len(self.result_queue) > 0:
+            self.put_data()
+
+
+    def put_data(self):
+        max_iter = mandelbrot_core.max_iterations
+        data = self.result_queue.pop(0)[0]
         width = self.canvas_width
         height = self.canvas_height
+        line = " {"
+        line += " ".join(self.rgb_to_hex(self.iteration_to_color(value, max_iter)) for value in data)
+        line += "}"
+        self.raw_image += line
 
-        raw_image = " ".join((("{"+" ".join(self.rgb_to_hex(self.iteration_to_color(data[j][i], mandelbrot_core.max_iterations)) for i in range(width))) + "}" for j in range(height)))
-        self.img.put(raw_image)
-
-
-    def collapse_data(self):
-        res = []
-        for line in self.result_queue:
-            res.append(line[0])
-        return res
+        # raw_image = " ".join((("{"+" ".join(self.rgb_to_hex(self.iteration_to_color(data[j][i], mandelbrot_core.max_iterations)) for i in range(width))) + "}" for j in range(height)))
+        self.img.put(self.raw_image)
 
     def rgb_to_hex(self, color):
         return ' #{:02x}{:02x}{:02x}'.format(color[0], color[1], color[2])
