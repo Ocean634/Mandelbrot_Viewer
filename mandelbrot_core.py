@@ -87,7 +87,7 @@ def fit_screen_size(corner_1, corner_2, screen):
 # _____________Main_Programm_________________ #
 
 max_iterations = 70
-zoom_power = 2
+# zoom_power = 2
 corner_1 = (-2, 1.2)
 corner_2 = (1, -1.2)
 number_of_workers = 2

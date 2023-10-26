@@ -63,7 +63,7 @@ class Task_Manager:
         while len(self.task_list) > 0:
 
             for space_number in range(len(self.Pool)):
-                print(self.Pool[space_number].Thread.name, self.Pool[space_number].state, f"row {self.Pool[space_number].args[3]}", end="  ")
+                # print(self.Pool[space_number].Thread.name, self.Pool[space_number].state, f"row {self.Pool[space_number].args[3]}", end="  ")
                 if self.Pool[space_number].state != 'RUNNING' and len(self.task_list) != 0:
 
                     # print(self.Pool[space_number].Thread.name, f"row {self.Pool[space_number].args[3]}", end="   ")
@@ -75,7 +75,7 @@ class Task_Manager:
                                                         name=self.Pool[space_number].name
                                                        )
                     self.Pool[space_number].start()
-            print("")
+            # print("")
         print(time.time()-starting_time)
 
 
@@ -101,12 +101,12 @@ class My_Thread:
         self.time = time
         self.Thread = threading.Thread(target=self.task, args=[], name=self.name)
 
-
+    @profile
     def start(self):
         self.state = 'RUNNING'
         self.Thread.start()
 
-
+    @profile
     def task(self):
         self.result = self.target(*self.args)
         self.display.result_queue.append(self.result)

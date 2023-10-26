@@ -140,9 +140,12 @@ class Displayer:
             R,G,B = X,0,C
         elif 300 <= H < 360:
             R,G,B = C,0,X
+        else:
+            raise ValueError("hue value can't be outside of 0°-360°")
 
-        (r,g,b) = ((R+m)*255, (G+m)*255,(B+m)*255)
-        return (int(r+0.5),int(g+0.5),int(b+0.5))
+        (r,g,b) = ((R+m)*255, (G+m)*255, (B+m)*255)
+        (r,g,b) = ((r+0.5)//1, (g+0.5)//1, (b+0.5)//1)
+        return (r,g,b)
 
     @profile
     def display_data(self):
@@ -165,5 +168,6 @@ class Displayer:
 
         # raw_image = " ".join((("{"+" ".join(self.rgb_to_hex(self.iteration_to_color(data[j][i], mandelbrot_core.max_iterations)) for i in range(width))) + "}" for j in range(height)))
 
+    @profile
     def rgb_to_hex(self, color):
         return ' #{:02x}{:02x}{:02x}'.format(color[0], color[1], color[2])
