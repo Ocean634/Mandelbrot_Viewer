@@ -1,13 +1,4 @@
-#-------------------------------------------------------------------------------
-# Name:        module1
-# Purpose:
-#
-# Author:      clene
-#
-# Created:     17/09/2023
-# Copyright:   (c) clene 2023
-# Licence:     <your licence>
-#-------------------------------------------------------------------------------
+# Créé par Ocean6, le 07/04/2023 en Python 3.11
 
 try:
     import threading
@@ -55,7 +46,7 @@ class Task_Manager:
         for worker in range(number_of_workers):
             self.Pool.append(My_Thread(display=self.display, name=f"Worker {worker+1}", args=[None, None, None, None]))
 
-    @profile
+
     def start_processing(self):
         """ Execute the task list entirely with async threads """
 
@@ -101,12 +92,12 @@ class My_Thread:
         self.time = time
         self.Thread = threading.Thread(target=self.task, args=[], name=self.name)
 
-    @profile
+
     def start(self):
         self.state = 'RUNNING'
         self.Thread.start()
 
-    @profile
+
     def task(self):
         self.result = self.target(*self.args)
         self.display.result_queue.append(self.result)

@@ -1,13 +1,5 @@
-#-----------------------------------------------------------------------------
-# Name:        test_tkinter
-# Purpose:
-#
-# Author:      Ocean6
-#
-# Created:     16/09/2023
-# Copyright:   (c) Ocean6 2023
-# Licence:     <your licence>
-#-----------------------------------------------------------------------------
+# Créé par Ocean6, le 07/04/2023 en Python 3.11
+
 try:
     import tkinter
 except ImportError:
@@ -29,7 +21,6 @@ except ImportError:
     raise ImportError("sys module not found")
 
 import time
-from line_profiler import profile
 
 class Displayer:
 
@@ -98,7 +89,7 @@ class Displayer:
         self.Master.update()
         return Canvas
 
-    @profile
+
     def iteration_to_color(self, iteration, max_iterations):
         # not divergent
         if iteration == max_iterations-1:
@@ -109,7 +100,7 @@ class Displayer:
         r,g,b = self.hsl_to_rgb(h, l, s)
         return (r,g,b)
 
-    @profile
+
     def hsl_to_rgb(self, H, S, L):
         """ Transfert colorization format from HLS to RGB
 
@@ -147,7 +138,7 @@ class Displayer:
         (r,g,b) = ((r+0.5)//1, (g+0.5)//1, (b+0.5)//1)
         return (r,g,b)
 
-    @profile
+
     def display_data(self):
         if  len(self.result_queue) > 10:
             for i in range(10):
@@ -157,7 +148,7 @@ class Displayer:
         self.img.put(self.raw_image)
 
 
-    @profile
+
     def put_data(self):
         max_iter = mandelbrot_core.max_iterations
         data = self.result_queue.pop(0)[0]
@@ -166,8 +157,6 @@ class Displayer:
         line += "}"
         self.raw_image += line
 
-        # raw_image = " ".join((("{"+" ".join(self.rgb_to_hex(self.iteration_to_color(data[j][i], mandelbrot_core.max_iterations)) for i in range(width))) + "}" for j in range(height)))
 
-    @profile
     def rgb_to_hex(self, color):
-        return ' #{:02x}{:02x}{:02x}'.format(color[0], color[1], color[2])
+        return ' #{:02x}{:02x}{:02x}'.format(int(color[0]), int(color[1]), int(color[2]))

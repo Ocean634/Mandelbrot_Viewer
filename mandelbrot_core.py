@@ -23,7 +23,7 @@ def compute_image(max_iterations, corner_1, corner_2, canvas_size,
 
     manager.create_lonely_thread()
 
-@profile
+
 def compute_line(max_iterations, corner_1, corner_2, row, canvas_size):
     # print("compute_line", row, task_manager.threading.current_thread().name, end="     ")
     start_time = time.time()
@@ -54,13 +54,13 @@ def compute_line(max_iterations, corner_1, corner_2, row, canvas_size):
     # print(row)
     return (divergence_values, row)
 
-@profile
+
 def get_center(corner_1, corner_2):
     x = corner_1[0] + 0.5*(corner_2[0]-corner_1[0])
     y = corner_2[1] + 0.5*(corner_1[1]-corner_2[1])
     return (x, y)
 
-@profile
+
 def fit_screen_size(corner_1, corner_2, screen):
     height = corner_1[1]-corner_2[1]
     width = corner_2[0]-corner_1[0]
@@ -92,7 +92,7 @@ corner_1 = (-2, 1.2)
 corner_2 = (1, -1.2)
 number_of_workers = 2
 
-@profile
+
 def main():
     global max_iterations
     global zoom_power
@@ -115,5 +115,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# http://igm.univ-mlv.fr/~alabarre/teaching/qualgo/qualgo01profilage-handout.pdf
